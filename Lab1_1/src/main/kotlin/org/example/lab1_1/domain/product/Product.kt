@@ -70,17 +70,25 @@ class Product(
     }
 
     fun changePrice(newPrice: Money) {
-        price = newPrice.normalized().nonNegative()
+        price = newPrice.normalized()
+            .nonNegative()
         touch()
     }
 
     fun changeDescription(desc: String?){
-        description = desc
-            ?.takeIf { it.isNotBlank() }
+        description = desc?.takeIf {
+            it.isNotBlank()
+        }
         touch()
     }
 
     fun relinkCategory(newCategoryId: CategoryId?) {
+        categoryId = newCategoryId
+        touch()
+    }
+
+    fun changeSku(newSku: Sku) {
+        sku = newSku
         touch()
     }
 
