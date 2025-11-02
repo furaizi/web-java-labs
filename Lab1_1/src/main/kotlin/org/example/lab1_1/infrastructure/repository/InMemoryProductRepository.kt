@@ -15,7 +15,6 @@ import kotlin.math.max
 @Repository
 class InMemoryProductRepository : ProductRepository {
 
-
     private val store = ConcurrentHashMap<ProductId, Product>()
 
     override fun nextId() = ProductId(UUID.randomUUID())
@@ -27,9 +26,8 @@ class InMemoryProductRepository : ProductRepository {
         return aggregate
     }
 
-    override fun delete(id: ProductId) {
-        store.remove(id)
-    }
+    override fun delete(id: ProductId) =
+        store.remove(id) != null
 
     override fun findBySku(sku: Sku) =
         store.values.firstOrNull { it.sku == sku }

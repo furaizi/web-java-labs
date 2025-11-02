@@ -1,4 +1,4 @@
-package org.example.lab1_1.advice
+package org.example.lab1_1.web.advice
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException

@@ -18,7 +18,7 @@ components:
     PageParam:
       name: page
       in: query
-      description: Zero‑based page index
+      description: Zero-based page index
       required: false
       schema: { type: integer, format: int32, minimum: 0, default: 0 }
     SizeParam:
@@ -68,12 +68,12 @@ components:
   schemas:
     ErrorResponse:
       type: object
-      description: RFC7807‑like error representation
+      description: RFC7807-like error representation
       properties:
-        type:    { type: string, description: URI to human‑readable docs of this error }
-        title:   { type: string, example: Bad Request }
-        status:  { type: integer, example: 400 }
-        detail:  { type: string, example: Invalid query parameter `minPrice` }
+        type: { type: string, description: URI to docs }
+        title: { type: string, example: Bad Request }
+        status: { type: integer, example: 400 }
+        detail: { type: string, example: Invalid query parameter `minPrice` }
         instance: { type: string, description: Request path }
         timestamp: { type: string, format: date-time }
       required: [title, status]
@@ -90,14 +90,14 @@ components:
     ParamsViolationDetails:
       type: object
       properties:
-        fieldName: { type: string, example: name }
-        reason:    { type: string, example: must not be blank }
+        field:  { type: string, example: name }
+        reason: { type: string, example: must not be blank }
 
     PageMetadata:
       type: object
       properties:
-        page:           { type: integer, format: int32, example: 0 }
-        size:           { type: integer, format: int32, example: 20 }
+        page:          { type: integer, format: int32, example: 0 }
+        size:          { type: integer, format: int32, example: 20 }
         totalPages:    { type: integer, format: int32, example: 3 }
         totalElements: { type: integer, format: int64, example: 42 }
       required: [page, size, totalPages, totalElements]
@@ -110,35 +110,17 @@ components:
       type: object
       description: Full product representation returned by the API
       properties:
-        id:          { type: integer, format: int64, example: 1001 }
-        sku:         { type: string, pattern: '^[A-Z0-9-]{3,32}$', example: 'ANTIGRAV-YARN-001' }
-        name:        { type: string, minLength: 1, maxLength: 120, example: 'Antigravity Yarn Ball' }
-        description: { type: string, maxLength: 2000, example: 'Zero‑G yarn ball for playful space cats.' }
-        price:       { type: number, multipleOf: 0.01, minimum: 0, example: 39.99 }
-        currency:    { type: string, pattern: '^[A-Z]{3}$', example: 'UAH' }
-        stock:       { type: integer, minimum: 0, example: 250 }
-        category:    { type: string, maxLength: 64, example: 'toys' }
-        tags:
-          type: array
-          items: { type: string, maxLength: 32 }
-          example: [ 'zero-g', 'kitten-approved' ]
+        id:          { type: string, format: uuid }
+        sku:         { type: string, pattern: '^[A-Z0-9-]{3,32}$' }
+        name:        { type: string, minLength: 1, maxLength: 120 }
+        description: { type: string, maxLength: 2000, nullable: true }
+        price:       { type: number, multipleOf: 0.01, minimum: 0 }
+        currency:    { type: string, pattern: '^[A-Z]{3}$' }
+        categoryId:  { type: string, format: uuid, nullable: true }
         status:      { $ref: '#/components/schemas/ProductStatus' }
-        originPlanet: { type: string, maxLength: 64, example: 'Andromeda‑A3' }
-        weightGrams: { type: integer, minimum: 0, example: 120 }
-        dimensionsCm:
-          type: object
-          properties:
-            width:  { type: number, minimum: 0, example: 10 }
-            height: { type: number, minimum: 0, example: 10 }
-            depth:  { type: number, minimum: 0, example: 10 }
-        rating:
-          type: number
-          minimum: 0
-          maximum: 5
-          example: 4.7
-        createdAt:  { type: string, format: date-time }
-        updatedAt:  { type: string, format: date-time }
-      required: [id, sku, name, price, currency, stock, status, createdAt, updatedAt]
+        createdAt:   { type: string, format: date-time }
+        updatedAt:   { type: string, format: date-time }
+      required: [id, sku, name, price, currency, status, createdAt, updatedAt]
 
     ProductCreateDto:
       type: object
@@ -146,64 +128,37 @@ components:
       properties:
         sku:         { type: string, pattern: '^[A-Z0-9-]{3,32}$' }
         name:        { type: string, minLength: 1, maxLength: 120 }
-        description: { type: string, maxLength: 2000 }
+        description: { type: string, maxLength: 2000, nullable: true }
         price:       { type: number, multipleOf: 0.01, minimum: 0 }
         currency:    { type: string, pattern: '^[A-Z]{3}$' }
-        stock:       { type: integer, minimum: 0 }
-        category:    { type: string, maxLength: 64 }
-        tags:
-          type: array
-          items: { type: string, maxLength: 32 }
+        categoryId:  { type: string, format: uuid, nullable: true }
         status:      { $ref: '#/components/schemas/ProductStatus' }
-        originPlanet: { type: string, maxLength: 64 }
-        weightGrams: { type: integer, minimum: 0 }
-        dimensionsCm:
-          type: object
-          properties:
-            width:  { type: number, minimum: 0 }
-            height: { type: number, minimum: 0 }
-            depth:  { type: number, minimum: 0 }
-      required: [sku, name, price, currency, stock, status]
+      required: [sku, name, price, currency, status]
       example:
         sku: "ANTIGRAV-YARN-001"
         name: "Antigravity Yarn Ball"
-        description: "Zero‑G yarn ball for playful space cats."
+        description: "Zero-G yarn ball for playful space cats."
         price: 39.99
         currency: "UAH"
-        stock: 250
-        category: "toys"
-        tags: ["zero-g", "kitten-approved"]
         status: "ACTIVE"
 
     ProductReplaceDto:
       type: object
-      description: Full replacement payload (PUT). All non‑nullable fields required.
+      description: Full replacement payload (PUT). All non-nullable fields required.
       allOf:
         - $ref: '#/components/schemas/ProductCreateDto'
 
     ProductPatchDto:
       type: object
-      description: Partial update payload (PATCH). All fields optional but validated when present.
+      description: Partial update payload (PATCH). All fields optional.
       properties:
         sku:         { type: string, pattern: '^[A-Z0-9-]{3,32}$' }
         name:        { type: string, minLength: 1, maxLength: 120 }
         description: { type: string, maxLength: 2000 }
         price:       { type: number, multipleOf: 0.01, minimum: 0 }
         currency:    { type: string, pattern: '^[A-Z]{3}$' }
-        stock:       { type: integer, minimum: 0 }
-        category:    { type: string, maxLength: 64 }
-        tags:
-          type: array
-          items: { type: string, maxLength: 32 }
+        categoryId:  { type: string, format: uuid }
         status:      { $ref: '#/components/schemas/ProductStatus' }
-        originPlanet: { type: string, maxLength: 64 }
-        weightGrams: { type: integer, minimum: 0 }
-        dimensionsCm:
-          type: object
-          properties:
-            width:  { type: number, minimum: 0 }
-            height: { type: number, minimum: 0 }
-            depth:  { type: number, minimum: 0 }
 
     PageProductDto:
       type: object
@@ -229,11 +184,11 @@ paths:
         - $ref: '#/components/parameters/SortParam'
         - in: query
           name: q
-          description: Full‑text search in name/description
+          description: Full-text search in name/description
           schema: { type: string, maxLength: 120 }
         - in: query
-          name: category
-          schema: { type: string, maxLength: 64 }
+          name: categoryId
+          schema: { type: string, format: uuid }
         - in: query
           name: status
           schema: { $ref: '#/components/schemas/ProductStatus' }
@@ -243,14 +198,6 @@ paths:
         - in: query
           name: maxPrice
           schema: { type: number, multipleOf: 0.01, minimum: 0 }
-        - in: query
-          name: tags
-          description: Filter by one or more tags
-          schema:
-            type: array
-            items: { type: string, maxLength: 32 }
-          style: form
-          explode: true
       responses:
         '200':
           description: OK
@@ -290,7 +237,7 @@ paths:
       - in: path
         name: id
         required: true
-        schema: { type: integer, format: int64 }
+        schema: { type: string, format: uuid }
         description: Product ID
 
     get:
@@ -315,7 +262,11 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/ProductReplaceDto' }
       responses:
-        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/ProductDetailsDto' } } } }
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetailsDto' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }
@@ -331,7 +282,11 @@ paths:
           application/json:
             schema: { $ref: '#/components/schemas/ProductPatchDto' }
       responses:
-        '200': { description: Updated, content: { application/json: { schema: { $ref: '#/components/schemas/ProductDetailsDto' } } } }
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetailsDto' }
         '400': { $ref: '#/components/responses/BadRequest' }
         '401': { $ref: '#/components/responses/Unauthorized' }
         '403': { $ref: '#/components/responses/Forbidden' }

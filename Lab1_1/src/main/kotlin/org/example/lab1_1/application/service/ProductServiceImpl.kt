@@ -9,14 +9,13 @@ import org.example.lab1_1.domain.common.PageRequest
 import org.example.lab1_1.domain.common.PageResult
 import org.example.lab1_1.domain.common.Sort
 import org.example.lab1_1.domain.product.*
-import org.example.lab1_1.infrastructure.repository.InMemoryProductRepository
 import org.springframework.stereotype.Service
 import java.math.BigDecimal
 import java.util.*
 
 @Service
 class ProductServiceImpl(
-    private val repo: InMemoryProductRepository
+    private val repo: ProductRepository
 ) : ProductService {
 
     override fun create(dto: ProductCreateDto): ProductDetailsDto {
@@ -112,7 +111,9 @@ class ProductServiceImpl(
     }
 
     override fun delete(id: UUID) {
-        repo.delete(ProductId(id))
+        val deleted = repo.delete(ProductId(id))
+        if (!deleted)
+            throw NoSuchElementException("Product $id not found")
     }
 
     private fun requireUniqueSku(sku: String) {

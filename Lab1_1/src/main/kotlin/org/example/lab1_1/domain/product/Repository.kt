@@ -10,7 +10,7 @@ interface ProductRepository {
 
     fun findById(id: ProductId): Product?
     fun save(aggregate: Product): Product
-    fun delete(id: ProductId)
+    fun delete(id: ProductId): Boolean
     fun findBySku(sku: Sku): Product?
 
     fun search(
