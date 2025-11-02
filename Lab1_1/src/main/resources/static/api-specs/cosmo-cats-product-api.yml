@@ -2,14 +2,6 @@ openapi: 3.0.3
 info:
   title: Cosmo Cats Intergalactic Marketplace — Product API
   version: 1.0.0
-  description: |
-    Contract‑first OpenAPI spec for **Product** CRUD in Cosmo Cats Marketplace.
-    Place this file at `src/main/resources/api-specs/cosmo-cats-product-api.yml`.
-servers:
-  - url: http://localhost:8080
-    description: Local dev
-  - url: https://api.cosmocats.example
-    description: Production
 
 tags:
   - name: Products
