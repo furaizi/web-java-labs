@@ -7,7 +7,7 @@ plugins {
 
 group = "org.example"
 version = "0.0.1-SNAPSHOT"
-description = "Lab1_1"
+description = "Lab1_2"
 
 java {
     toolchain {
