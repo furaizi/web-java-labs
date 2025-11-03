@@ -56,13 +56,13 @@ jacoco {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
-    classDirectories.setFrom(
-        files(classDirectories.files.map {
-            fileTree(it) {
-                include("org/example/lab1_2/application/service/*ServiceImpl.class")
-            }
-        })
-    )
+    val trees = classDirectories.files.map {
+        fileTree(it) {
+            include("org/example/lab1_2/application/service/*ServiceImpl.class")
+            include("org/example/lab1_2/web/api/*Controller.class")
+        }
+    }
+    classDirectories.setFrom(files(trees))
     reports {
         xml.required.set(true)
         html.required.set(true)
@@ -72,13 +72,13 @@ tasks.jacocoTestReport {
 
 tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.test)
-    classDirectories.setFrom(
-        files(classDirectories.files.map {
-            fileTree(it) {
-                include("org/example/lab1_2/application/service/*ServiceImpl.class")
-            }
-        })
-    )
+    val trees = classDirectories.files.map {
+        fileTree(it) {
+            include("org/example/lab1_2/application/service/*ServiceImpl.class")
+            include("org/example/lab1_2/web/api/*Controller.class")
+        }
+    }
+    classDirectories.setFrom(files(trees))
     violationRules {
         rule {
             element = "CLASS"

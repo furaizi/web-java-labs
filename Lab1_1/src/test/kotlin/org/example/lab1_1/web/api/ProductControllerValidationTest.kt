@@ -1,4 +1,4 @@
-package org.example.lab1_2.web.api
+package org.example.lab1_1.web.api
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -11,13 +11,13 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.example.lab1_2.application.dto.ProductCreateDto
-import org.example.lab1_2.application.dto.ProductDetailsDto
-import org.example.lab1_2.application.dto.ProductPatchDto
-import org.example.lab1_2.application.dto.ProductStatusDto
-import org.example.lab1_2.application.service.ProductService
-import org.example.lab1_2.domain.common.PageResult
-import org.example.lab1_2.web.advice.GlobalErrorHandler
+import org.example.lab1_1.application.dto.ProductCreateDto
+import org.example.lab1_1.application.dto.ProductDetailsDto
+import org.example.lab1_1.application.dto.ProductPatchDto
+import org.example.lab1_1.application.dto.ProductStatusDto
+import org.example.lab1_1.application.service.ProductService
+import org.example.lab1_1.domain.common.PageResult
+import org.example.lab1_1.web.advice.GlobalErrorHandler
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
