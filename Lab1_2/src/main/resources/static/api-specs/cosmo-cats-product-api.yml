@@ -1,0 +1,303 @@
+openapi: 3.0.3
+info:
+  title: Cosmo Cats Intergalactic Marketplace — Product API
+  version: 1.0.0
+
+tags:
+  - name: Products
+    description: CRUD operations for intergalactic products
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      description: Zero-based page index
+      required: false
+      schema: { type: integer, format: int32, minimum: 0, default: 0 }
+    SizeParam:
+      name: size
+      in: query
+      description: Page size
+      required: false
+      schema: { type: integer, format: int32, minimum: 1, maximum: 200, default: 20 }
+    SortParam:
+      name: sort
+      in: query
+      description: Sort by field, e.g. `name,asc` or `price,desc`. Repeatable.
+      required: false
+      schema:
+        type: array
+        items: { type: string }
+      style: form
+      explode: true
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid credentials
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Forbidden:
+      description: Authenticated but not allowed
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    Conflict:
+      description: Conflict (e.g., duplicated SKU)
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
+    BadRequest:
+      description: Validation or request error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ValidationError' }
+
+  schemas:
+    ErrorResponse:
+      type: object
+      description: RFC7807-like error representation
+      properties:
+        type: { type: string, description: URI to docs }
+        title: { type: string, example: Bad Request }
+        status: { type: integer, example: 400 }
+        detail: { type: string, example: Invalid query parameter `minPrice` }
+        instance: { type: string, description: Request path }
+        timestamp: { type: string, format: date-time }
+      required: [title, status]
+
+    ValidationError:
+      type: object
+      properties:
+        status: { type: string, example: "400" }
+        errors:
+          type: array
+          items: { $ref: '#/components/schemas/ParamsViolationDetails' }
+      required: [status, errors]
+
+    ParamsViolationDetails:
+      type: object
+      properties:
+        field:  { type: string, example: name }
+        reason: { type: string, example: must not be blank }
+
+    PageMetadata:
+      type: object
+      properties:
+        page:          { type: integer, format: int32, example: 0 }
+        size:          { type: integer, format: int32, example: 20 }
+        totalPages:    { type: integer, format: int32, example: 3 }
+        totalElements: { type: integer, format: int64, example: 42 }
+      required: [page, size, totalPages, totalElements]
+
+    ProductStatus:
+      type: string
+      enum: [DRAFT, ACTIVE, ARCHIVED]
+
+    ProductDetailsDto:
+      type: object
+      description: Full product representation returned by the API
+      properties:
+        id:          { type: string, format: uuid }
+        sku:         { type: string, pattern: '^[A-Z0-9-]{3,32}$' }
+        name:        { type: string, minLength: 1, maxLength: 120 }
+        description: { type: string, maxLength: 2000, nullable: true }
+        price:       { type: number, multipleOf: 0.01, minimum: 0 }
+        currency:    { type: string, pattern: '^[A-Z]{3}$' }
+        categoryId:  { type: string, format: uuid, nullable: true }
+        status:      { $ref: '#/components/schemas/ProductStatus' }
+        createdAt:   { type: string, format: date-time }
+        updatedAt:   { type: string, format: date-time }
+      required: [id, sku, name, price, currency, status, createdAt, updatedAt]
+
+    ProductCreateDto:
+      type: object
+      description: Payload for creating a product
+      properties:
+        sku:         { type: string, pattern: '^[A-Z0-9-]{3,32}$' }
+        name:        { type: string, minLength: 1, maxLength: 120 }
+        description: { type: string, maxLength: 2000, nullable: true }
+        price:       { type: number, multipleOf: 0.01, minimum: 0 }
+        currency:    { type: string, pattern: '^[A-Z]{3}$' }
+        categoryId:  { type: string, format: uuid, nullable: true }
+        status:      { $ref: '#/components/schemas/ProductStatus' }
+      required: [sku, name, price, currency, status]
+      example:
+        sku: "ANTIGRAV-YARN-001"
+        name: "Antigravity Yarn Ball"
+        description: "Zero-G yarn ball for playful space cats."
+        price: 39.99
+        currency: "UAH"
+        status: "ACTIVE"
+
+    ProductReplaceDto:
+      type: object
+      description: Full replacement payload (PUT). All non-nullable fields required.
+      allOf:
+        - $ref: '#/components/schemas/ProductCreateDto'
+
+    ProductPatchDto:
+      type: object
+      description: Partial update payload (PATCH). All fields optional.
+      properties:
+        sku:         { type: string, pattern: '^[A-Z0-9-]{3,32}$' }
+        name:        { type: string, minLength: 1, maxLength: 120 }
+        description: { type: string, maxLength: 2000 }
+        price:       { type: number, multipleOf: 0.01, minimum: 0 }
+        currency:    { type: string, pattern: '^[A-Z]{3}$' }
+        categoryId:  { type: string, format: uuid }
+        status:      { $ref: '#/components/schemas/ProductStatus' }
+
+    PageProductDto:
+      type: object
+      properties:
+        content:
+          type: array
+          items: { $ref: '#/components/schemas/ProductDetailsDto' }
+        page: { $ref: '#/components/schemas/PageMetadata' }
+      required: [content, page]
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/products:
+    get:
+      tags: [Products]
+      summary: List products
+      description: Returns a paginated list of products. Supports filtering and sorting.
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - $ref: '#/components/parameters/SortParam'
+        - in: query
+          name: q
+          description: Full-text search in name/description
+          schema: { type: string, maxLength: 120 }
+        - in: query
+          name: categoryId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: status
+          schema: { $ref: '#/components/schemas/ProductStatus' }
+        - in: query
+          name: minPrice
+          schema: { type: number, multipleOf: 0.01, minimum: 0 }
+        - in: query
+          name: maxPrice
+          schema: { type: number, multipleOf: 0.01, minimum: 0 }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PageProductDto' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+    post:
+      tags: [Products]
+      summary: Create a new product
+      requestBody:
+        description: Product data to create a new product
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductCreateDto' }
+      responses:
+        '201':
+          description: Created
+          headers:
+            Location:
+              description: URL of the created resource
+              schema: { type: string, format: uri }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetailsDto' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /api/v1/products/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string, format: uuid }
+        description: Product ID
+
+    get:
+      tags: [Products]
+      summary: Get product by ID
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetailsDto' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+    put:
+      tags: [Products]
+      summary: Replace product by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductReplaceDto' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetailsDto' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+    patch:
+      tags: [Products]
+      summary: Patch product by ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ProductPatchDto' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ProductDetailsDto' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+    delete:
+      tags: [Products]
+      summary: Delete product by ID
+      responses:
+        '204': { description: No Content }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }

@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: Lab1_1
+
+springdoc:
+  swagger-ui:
+    url: /api-specs/cosmo-cats-product-api.yml
