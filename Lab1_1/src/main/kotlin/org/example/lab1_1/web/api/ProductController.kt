@@ -4,9 +4,9 @@ import jakarta.validation.Valid
 import org.example.lab1_1.application.dto.ProductCreateDto
 import org.example.lab1_1.application.dto.ProductDetailsDto
 import org.example.lab1_1.application.dto.ProductPatchDto
-import org.example.lab1_1.application.dto.ProductStatusDto
 import org.example.lab1_1.application.service.ProductService
 import org.example.lab1_1.domain.common.PageResult
+import org.example.lab1_1.domain.product.Product
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -34,7 +34,7 @@ class ProductController(
     fun list(
         @RequestParam(required = false) q: String?,
         @RequestParam(name = "category", required = false) categoryId: UUID?,
-        @RequestParam(required = false) status: ProductStatusDto?,
+        @RequestParam(required = false) status: Product.Status?,
         @RequestParam(required = false) minPrice: BigDecimal?,
         @RequestParam(required = false) maxPrice: BigDecimal?,
         @RequestParam(defaultValue = "0") page: Int,
