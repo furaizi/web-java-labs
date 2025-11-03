@@ -5,11 +5,11 @@ import org.example.lab1_1.application.validation.annotation.CosmicName
 import org.example.lab1_1.application.validation.annotation.CurrencyCode
 import org.example.lab1_1.application.validation.annotation.MoneyAmount
 import org.example.lab1_1.application.validation.annotation.SkuCode
+import org.example.lab1_1.domain.product.Product
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.UUID
 
-enum class ProductStatusDto { DRAFT, ACTIVE, ARCHIVED }
 
 data class ProductDetailsDto(
     val id: UUID,
@@ -19,7 +19,7 @@ data class ProductDetailsDto(
     val price: BigDecimal,
     val currency: String,
     val categoryId: UUID? = null,
-    val status: ProductStatusDto = ProductStatusDto.DRAFT,
+    val status: Product.Status = Product.Status.DRAFT,
     val createdAt: Instant,
     val updatedAt: Instant
 )
@@ -42,7 +42,7 @@ data class ProductCreateDto(
 
     val categoryId: UUID? = null,
 
-    val status: ProductStatusDto = ProductStatusDto.DRAFT
+    val status: Product.Status = Product.Status.DRAFT,
 )
 
 data class ProductPatchDto(
@@ -63,5 +63,5 @@ data class ProductPatchDto(
 
     val categoryId: UUID? = null,
 
-    val status: ProductStatusDto? = null
+    val status: Product.Status? = null
 )

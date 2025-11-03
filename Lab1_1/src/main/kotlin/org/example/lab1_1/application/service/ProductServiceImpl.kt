@@ -31,7 +31,7 @@ class ProductServiceImpl(
     override fun list(
         q: String?,
         categoryId: UUID?,
-        status: ProductStatusDto?,
+        status: Product.Status?,
         minPrice: BigDecimal?,
         maxPrice: BigDecimal?,
         page: Int,
@@ -41,13 +41,7 @@ class ProductServiceImpl(
         val filter = ProductSearch(
             q = q,
             categoryId = categoryId,
-            status = status?.let {
-                when (it) {
-                    ProductStatusDto.DRAFT    -> Product.Status.DRAFT
-                    ProductStatusDto.ACTIVE   -> Product.Status.ACTIVE
-                    ProductStatusDto.ARCHIVED -> Product.Status.ARCHIVED
-                }
-            },
+            status = status,
             minPrice = minPrice,
             maxPrice = maxPrice
         )
