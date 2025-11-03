@@ -56,6 +56,13 @@ jacoco {
 
 tasks.jacocoTestReport {
     dependsOn(tasks.test)
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                include("org/example/lab1_2/application/service/*ServiceImpl.class")
+            }
+        })
+    )
     reports {
         xml.required.set(true)
         html.required.set(true)
@@ -65,12 +72,20 @@ tasks.jacocoTestReport {
 
 tasks.jacocoTestCoverageVerification {
     dependsOn(tasks.test)
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                include("org/example/lab1_2/application/service/*ServiceImpl.class")
+            }
+        })
+    )
     violationRules {
         rule {
+            element = "CLASS"
             limit {
                 counter = "INSTRUCTION"
                 value = "COVEREDRATIO"
-                minimum = "0.50".toBigDecimal()
+                minimum = "0.80".toBigDecimal()
             }
         }
     }
