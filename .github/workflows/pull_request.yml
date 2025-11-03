@@ -6,6 +6,9 @@ on:
       - main
       - '**'
 
+env:
+  PROJECT_DIR: Lab1_2
+
 jobs:
   build:
     name: Build and Test
@@ -32,11 +35,12 @@ jobs:
             gradle-
 
       - name: Grant execute permission for Gradlew
-        run: chmod +x ./gradlew
+        run: chmod +x ./${{ env.PROJECT_DIR }}/gradlew
 
       - name: Build with Gradle
         uses: gradle/gradle-build-action@v3
         with:
+          build-root-directory: ${{ env.PROJECT_DIR }}
           cache-disabled: true
           generate-job-summary: false
 
@@ -44,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-coverage-report
-          path: build/reports/coverage/index.html
+          path: ${{ env.PROJECT_DIR }}build/reports/coverage/index.html
