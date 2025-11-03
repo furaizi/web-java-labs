@@ -1,0 +1,9 @@
+cosmic:
+  word:
+    invalid: "Name must contain at least one cosmic term (e.g., star, galaxy, comet)"
+sku:
+  invalid: "SKU must be 3..32 chars, A-Z, digits or dash"
+currency:
+  invalid: "Currency must be 3-letter ISO 4217 (e.g. UAH)"
+money:
+  invalid: "0.00 and have up to 2 decimals"
