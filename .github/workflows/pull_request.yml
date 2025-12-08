@@ -7,7 +7,7 @@ on:
       - '**'
 
 env:
-  PROJECT_DIR: Lab1_2
+  PROJECT_DIR: Lab1_1
 
 jobs:
   build:
