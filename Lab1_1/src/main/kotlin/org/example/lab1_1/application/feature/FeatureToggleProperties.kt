@@ -4,11 +4,13 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
 
 @Component
-@ConfigurationProperties(prefix = "feature")
-class FeatureToggleProperties {
-    val flags: MutableMap<String, FeatureToggleFlag> = mutableMapOf()
-}
+@ConfigurationProperties
+class FeatureToggleProperties(
+    val feature: MutableMap<String, Flag> = mutableMapOf()
+) {
 
-data class FeatureToggleFlag(
-    var enabled: Boolean = false
-)
+    data class Flag(
+        val enabled: Boolean = false
+    )
+
+}

@@ -8,5 +8,7 @@ class FeatureToggleService(
 ) {
 
     fun isFeatureEnabled(featureName: String): Boolean =
-        featureToggleProperties.flags[featureName]?.enabled ?: false
+        featureToggleProperties
+            .feature[featureName]
+            ?.enabled ?: false
 }
