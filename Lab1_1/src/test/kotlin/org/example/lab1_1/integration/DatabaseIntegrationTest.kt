@@ -11,16 +11,21 @@ import org.example.lab1_1.domain.model.Customer
 import org.example.lab1_1.domain.model.Order
 import org.example.lab1_1.domain.model.OrderItem
 import org.example.lab1_1.domain.model.OrderStatus
+import org.example.lab1_1.domain.model.Product
 import org.example.lab1_1.domain.model.ProductStatus
+import org.example.lab1_1.domain.repository.CategoryRepository
 import org.example.lab1_1.domain.repository.CustomerRepository
+import org.example.lab1_1.domain.repository.OrderRepository
 import org.example.lab1_1.domain.repository.ProductRepository
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
+import org.springframework.transaction.annotation.Transactional
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
@@ -33,28 +38,36 @@ import kotlin.test.assertNotNull
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("tc")
 @Testcontainers
+@Transactional
 class DatabaseIntegrationTest @Autowired constructor(
     private val productService: ProductService,
     private val categoryService: CategoryService,
     private val orderService: OrderService,
     private val customerRepository: CustomerRepository,
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val categoryRepository: CategoryRepository,
+    private val orderRepository: OrderRepository
 ) {
+
+    @AfterEach
+    fun cleanDb() {
+        orderRepository.deleteAll()
+        productRepository.deleteAll()
+        categoryRepository.deleteAll()
+        customerRepository.deleteAll()
+    }
 
     @Test
     fun `product CRUD with filtering and projection`() {
-        val category = categoryService.create(Category(name = "Nebulae"))
-
-        val created = productService.create(
-            ProductCreateDto(
-                sku = "SKU-TC-1",
-                name = "Nebula Dust",
-                description = "Space grade dust",
-                price = BigDecimal("10.50"),
-                currency = "USD",
-                categoryId = category.publicId,
-                status = ProductStatusDto.ACTIVE
-            )
+        val category = createCategory("Nebulae")
+        val created = createProduct(
+            sku = "SKU-TC-1",
+            name = "Nebula Dust",
+            description = "Space grade dust",
+            price = BigDecimal("10.50"),
+            currency = "USD",
+            categoryId = category.publicId,
+            status = ProductStatusDto.ACTIVE
         )
 
         val fetched = productService.get(created.id)
@@ -88,9 +101,9 @@ class DatabaseIntegrationTest @Autowired constructor(
 
     @Test
     fun `order service persists totals and natural id`() {
-        val category = categoryService.create(Category(name = "Galaxies"))
-        val productDto = productService.create(
-            ProductCreateDto(
+        val category = createCategory("Galaxies")
+        val product = productRepository.findByPublicId(
+            createProduct(
                 sku = "SKU-TC-2",
                 name = "Galaxy Paint",
                 description = "Dark matter paint",
@@ -98,37 +111,20 @@ class DatabaseIntegrationTest @Autowired constructor(
                 currency = "USD",
                 categoryId = category.publicId,
                 status = ProductStatusDto.ACTIVE
-            )
-        )
-        val productEntity = productRepository.findByPublicId(productDto.id)
-            ?: error("Product entity not found")
+            ).id
+        ) ?: error("Product entity not found")
 
-        val customer = customerRepository.save(
-            Customer(
-                email = "space.cadet@example.com",
-                fullName = "Space Cadet"
-            )
-        )
-
-        val order = Order(
-            customer = null,
+        val customer = persistCustomer("space.cadet@example.com", "Space Cadet")
+        val order = buildOrder(
+            customer = customer,
             orderNumber = "ORD-42",
-            status = OrderStatus.DRAFT,
-            currencyCode = "USD",
-            totalAmount = BigDecimal.ZERO
-        )
-        order.items.add(
-            OrderItem(
-                order = order,
-                product = productEntity,
-                quantity = 2,
-                unitPrice = BigDecimal("20.00"),
-                currencyCode = "USD"
-            )
+            product = product,
+            quantity = 2,
+            unitPrice = BigDecimal("20.00")
         )
 
         val persisted = orderService.create(customer.publicId, order)
-        assertEquals(0, persisted.totalAmount.compareTo(BigDecimal("40.00")))
+        assertAmountEquals(BigDecimal("40.00"), persisted.totalAmount)
         assertEquals(1, persisted.items.size)
         assertNotNull(orderService.getByOrderNumber("ORD-42"))
 
@@ -136,7 +132,7 @@ class DatabaseIntegrationTest @Autowired constructor(
         assertEquals(OrderStatus.CANCELLED, updated.status)
 
         val top = productService.findTopSelling(1).first()
-        assertEquals(productEntity.id, top.productId)
+        assertEquals(product.id, top.productId)
         assertEquals("Galaxy Paint", top.productName)
         assertEquals(2L, top.totalQuantity)
     }
@@ -160,5 +156,60 @@ class DatabaseIntegrationTest @Autowired constructor(
             registry.add("spring.liquibase.enabled") { true }
             registry.add("spring.liquibase.change-log") { "classpath:db/changelog/db.changelog-master.yml" }
         }
+    }
+
+    private fun createCategory(name: String) = categoryService.create(Category(name = name))
+
+    private fun createProduct(
+        sku: String,
+        name: String,
+        description: String,
+        price: BigDecimal,
+        currency: String,
+        categoryId: UUID,
+        status: ProductStatusDto
+    ) = productService.create(
+        ProductCreateDto(
+            sku = sku,
+            name = name,
+            description = description,
+            price = price,
+            currency = currency,
+            categoryId = categoryId,
+            status = status
+        )
+    )
+
+    private fun persistCustomer(email: String, fullName: String) =
+        customerRepository.save(Customer(email = email, fullName = fullName))
+
+    private fun buildOrder(
+        customer: Customer,
+        orderNumber: String,
+        product: Product,
+        quantity: Int,
+        unitPrice: BigDecimal
+    ): Order {
+        val order = Order(
+            customer = customer,
+            orderNumber = orderNumber,
+            status = OrderStatus.DRAFT,
+            currencyCode = "USD",
+            totalAmount = BigDecimal.ZERO
+        )
+        order.items.add(
+            OrderItem(
+                order = order,
+                product = product,
+                quantity = quantity,
+                unitPrice = unitPrice,
+                currencyCode = "USD"
+            )
+        )
+        return order
+    }
+
+    private fun assertAmountEquals(expected: BigDecimal, actual: BigDecimal) {
+        assertEquals(0, actual.compareTo(expected))
     }
 }
