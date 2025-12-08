@@ -1,6 +1,8 @@
 spring:
   application:
     name: Lab1_2
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yml
 
 springdoc:
   swagger-ui:

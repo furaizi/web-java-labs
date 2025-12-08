@@ -1,0 +1,358 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-sequences
+      author: codex
+      changes:
+        - createSequence:
+            sequenceName: category_seq
+            startValue: 1
+            incrementBy: 1
+        - createSequence:
+            sequenceName: product_seq
+            startValue: 1
+            incrementBy: 1
+        - createSequence:
+            sequenceName: customer_seq
+            startValue: 1
+            incrementBy: 1
+        - createSequence:
+            sequenceName: order_seq
+            startValue: 1
+            incrementBy: 1
+        - createSequence:
+            sequenceName: order_item_seq
+            startValue: 1
+            incrementBy: 1
+
+  - changeSet:
+      id: 002-create-categories
+      author: codex
+      changes:
+        - createTable:
+            tableName: categories
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueSequenceNext: category_seq
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_categories
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_categories_name
+              - column:
+                  name: description
+                  type: varchar(512)
+              - column:
+                  name: created_at
+                  type: "timestamp with time zone"
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: "timestamp with time zone"
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 003-create-customers
+      author: codex
+      changes:
+        - createTable:
+            tableName: customers
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueSequenceNext: customer_seq
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_customers
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_customers_email
+              - column:
+                  name: full_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: phone
+                  type: varchar(32)
+              - column:
+                  name: created_at
+                  type: "timestamp with time zone"
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: "timestamp with time zone"
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 004-create-products
+      author: codex
+      changes:
+        - createTable:
+            tableName: products
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueSequenceNext: product_seq
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_products
+                    nullable: false
+              - column:
+                  name: category_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: sku
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_products_sku
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: text
+              - column:
+                  name: price_amount
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_code
+                  type: char(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: stock_quantity
+                  type: integer
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: "timestamp with time zone"
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: "timestamp with time zone"
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: products
+            baseColumnNames: category_id
+            constraintName: fk_products_categories
+            referencedTableName: categories
+            referencedColumnNames: id
+
+  - changeSet:
+      id: 005-create-orders
+      author: codex
+      changes:
+        - createTable:
+            tableName: orders
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueSequenceNext: order_seq
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_orders
+                    nullable: false
+              - column:
+                  name: customer_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: order_number
+                  type: varchar(64)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uk_orders_number
+              - column:
+                  name: status
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_code
+                  type: char(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_amount
+                  type: numeric(14,2)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: "timestamp with time zone"
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: "timestamp with time zone"
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: orders
+            baseColumnNames: customer_id
+            constraintName: fk_orders_customers
+            referencedTableName: customers
+            referencedColumnNames: id
+
+  - changeSet:
+      id: 006-create-order-items
+      author: codex
+      changes:
+        - createTable:
+            tableName: order_items
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  defaultValueSequenceNext: order_item_seq
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_order_items
+                    nullable: false
+              - column:
+                  name: order_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: integer
+                  constraints:
+                    nullable: false
+              - column:
+                  name: unit_price
+                  type: numeric(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_code
+                  type: char(3)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: "timestamp with time zone"
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: order_items
+            baseColumnNames: order_id
+            constraintName: fk_order_items_orders
+            referencedTableName: orders
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            baseTableName: order_items
+            baseColumnNames: product_id
+            constraintName: fk_order_items_products
+            referencedTableName: products
+            referencedColumnNames: id
+
+  - changeSet:
+      id: 007-add-indexes-and-checks
+      author: codex
+      changes:
+        - createIndex:
+            tableName: products
+            indexName: idx_products_category
+            columns:
+              - column:
+                  name: category_id
+        - createIndex:
+            tableName: orders
+            indexName: idx_orders_customer
+            columns:
+              - column:
+                  name: customer_id
+        - createIndex:
+            tableName: order_items
+            indexName: idx_order_items_order
+            columns:
+              - column:
+                  name: order_id
+        - createIndex:
+            tableName: order_items
+            indexName: idx_order_items_product
+            columns:
+              - column:
+                  name: product_id
+        - addCheckConstraint:
+            tableName: products
+            constraintName: ck_products_price_non_negative
+            checkConstraint: price_amount >= 0
+        - addCheckConstraint:
+            tableName: products
+            constraintName: ck_products_stock_non_negative
+            checkConstraint: stock_quantity >= 0
+        - addCheckConstraint:
+            tableName: products
+            constraintName: ck_products_currency_format
+            checkConstraint: currency_code ~ '^[A-Z]{3}$'
+        - addCheckConstraint:
+            tableName: orders
+            constraintName: ck_orders_total_non_negative
+            checkConstraint: total_amount >= 0
+        - addCheckConstraint:
+            tableName: orders
+            constraintName: ck_orders_currency_format
+            checkConstraint: currency_code ~ '^[A-Z]{3}$'
+        - addCheckConstraint:
+            tableName: order_items
+            constraintName: ck_order_items_quantity_positive
+            checkConstraint: quantity > 0
+        - addCheckConstraint:
+            tableName: order_items
+            constraintName: ck_order_items_unit_price_non_negative
+            checkConstraint: unit_price >= 0
+        - addCheckConstraint:
+            tableName: order_items
+            constraintName: ck_order_items_currency_format
+            checkConstraint: currency_code ~ '^[A-Z]{3}$'
