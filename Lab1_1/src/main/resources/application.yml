@@ -5,3 +5,9 @@ spring:
 springdoc:
   swagger-ui:
     url: /api-specs/cosmo-cats-product-api.yml
+
+feature:
+  cosmo-cats:
+    enabled: true
+  kitty-products:
+    enabled: true
