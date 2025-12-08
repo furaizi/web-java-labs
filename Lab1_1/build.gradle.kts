@@ -42,6 +42,11 @@ dependencies {
     testImplementation("org.skyscreamer:jsonassert:1.5.1")
     testImplementation("com.jayway.jsonpath:json-path:2.9.0")
     testImplementation("com.github.tomakehurst:wiremock-jre8:2.35.2")
+    testImplementation(kotlin("test"))
+    testImplementation(platform("org.testcontainers:testcontainers-bom:1.20.2"))
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("com.h2database:h2")
 }

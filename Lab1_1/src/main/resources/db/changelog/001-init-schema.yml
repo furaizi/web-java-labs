@@ -324,35 +324,13 @@ databaseChangeLog:
             columns:
               - column:
                   name: product_id
-        - addCheckConstraint:
-            tableName: products
-            constraintName: ck_products_price_non_negative
-            checkConstraint: price_amount >= 0
-        - addCheckConstraint:
-            tableName: products
-            constraintName: ck_products_stock_non_negative
-            checkConstraint: stock_quantity >= 0
-        - addCheckConstraint:
-            tableName: products
-            constraintName: ck_products_currency_format
-            checkConstraint: currency_code ~ '^[A-Z]{3}$'
-        - addCheckConstraint:
-            tableName: orders
-            constraintName: ck_orders_total_non_negative
-            checkConstraint: total_amount >= 0
-        - addCheckConstraint:
-            tableName: orders
-            constraintName: ck_orders_currency_format
-            checkConstraint: currency_code ~ '^[A-Z]{3}$'
-        - addCheckConstraint:
-            tableName: order_items
-            constraintName: ck_order_items_quantity_positive
-            checkConstraint: quantity > 0
-        - addCheckConstraint:
-            tableName: order_items
-            constraintName: ck_order_items_unit_price_non_negative
-            checkConstraint: unit_price >= 0
-        - addCheckConstraint:
-            tableName: order_items
-            constraintName: ck_order_items_currency_format
-            checkConstraint: currency_code ~ '^[A-Z]{3}$'
+        - sql:
+            sql: |
+              ALTER TABLE products ADD CONSTRAINT ck_products_price_non_negative CHECK (price_amount >= 0);
+              ALTER TABLE products ADD CONSTRAINT ck_products_stock_non_negative CHECK (stock_quantity >= 0);
+              ALTER TABLE products ADD CONSTRAINT ck_products_currency_format CHECK (currency_code ~ '^[A-Z]{3}$');
+              ALTER TABLE orders ADD CONSTRAINT ck_orders_total_non_negative CHECK (total_amount >= 0);
+              ALTER TABLE orders ADD CONSTRAINT ck_orders_currency_format CHECK (currency_code ~ '^[A-Z]{3}$');
+              ALTER TABLE order_items ADD CONSTRAINT ck_order_items_quantity_positive CHECK (quantity > 0);
+              ALTER TABLE order_items ADD CONSTRAINT ck_order_items_unit_price_non_negative CHECK (unit_price >= 0);
+              ALTER TABLE order_items ADD CONSTRAINT ck_order_items_currency_format CHECK (currency_code ~ '^[A-Z]{3}$');

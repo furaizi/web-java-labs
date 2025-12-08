@@ -64,7 +64,9 @@ class OrderServiceImpl(
     }
 
     private fun rebuildItems(order: Order, newItems: Collection<OrderItem>) {
-        newItems.forEach { item ->
+        val items = newItems.toList()
+        order.items.clear()
+        items.forEach { item ->
             item.order = order
             item.product = resolveProduct(item.product?.id, item.product?.publicId)
             order.items.add(item)
