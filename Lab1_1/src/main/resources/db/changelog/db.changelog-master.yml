@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/001-init-schema.yml
   - include:
       file: db/changelog/002-product-constraints.yml
+  - include:
+      file: db/changelog/003-public-ids-and-status.yml

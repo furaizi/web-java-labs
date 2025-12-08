@@ -8,6 +8,7 @@
 Поля:
 
 * id (bigint, PK, sequence category_seq)
+* public_id (uuid, not null, unique для зовнішнього API)
 * name (varchar(128), not null, unique)
 * description (varchar(512))
 * created_at, updated_at (timestamptz, default now())
@@ -16,9 +17,11 @@
 Поля:
 
 * id (bigint, PK, sequence product_seq)
+* public_id (uuid, not null, unique)
 * category_id (bigint, FK -> categories.id)
 * sku (varchar(32), not null, unique)
 * name (varchar(255), not null, unique в межах категорії)
+* status (varchar(32), not null, enum: DRAFT/ACTIVE/ARCHIVED)
 * description (text)
 * price_amount (numeric(12,2), not null, >= 0)
 * currency_code (char(3), not null, ISO 4217)
@@ -29,6 +32,7 @@
 Поля:
 
 * id (bigint, PK, sequence customer_seq)
+* public_id (uuid, not null, unique)
 * email (varchar(128), not null, unique)
 * full_name (varchar(255), not null)
 * phone (varchar(32))
@@ -38,6 +42,7 @@
 Поля:
 
 * id (bigint, PK, sequence order_seq)
+* public_id (uuid, not null, unique)
 * customer_id (bigint, FK -> customers.id)
 * order_number (varchar(64), not null, unique)
 * status (varchar(32), not null)
@@ -65,7 +70,7 @@
 
 ## Індекси та обмеження
 
-Унікальні обмеження: categories.name, products.sku, customers.email, orders.order_number, а також products(category_id, name).
+Унікальні обмеження: categories.public_id, products.public_id, customers.public_id, orders.public_id, categories.name, products.sku, customers.email, orders.order_number, а також products(category_id, name).
 
 Індекси для оптимізації JOIN та пошуку: products(category_id), products(name), orders(customer_id), order_items(order_id), order_items(product_id).
 
@@ -76,3 +81,4 @@
 * db/changelog/db.changelog-master.yml - основний changelog
 * db/changelog/001-init-schema.yml - створення послідовностей, таблиць і базових обмежень
 * db/changelog/002-product-constraints.yml - унікальність назви товару в межах категорії та індекс по назві
+* db/changelog/003-public-ids-and-status.yml - `public_id` (uuid) для зовнішніх API та статус товару
