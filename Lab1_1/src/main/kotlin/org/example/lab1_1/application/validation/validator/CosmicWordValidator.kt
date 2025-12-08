@@ -2,15 +2,13 @@ package org.example.lab1_1.application.validation.validator
 
 import jakarta.validation.ConstraintValidator
 import jakarta.validation.ConstraintValidatorContext
-import org.example.lab1_1.application.validation.annotation.CosmicWordCheck
+import org.example.lab1_1.application.validation.annotation.CosmicName
 
-class CosmicWordValidator : ConstraintValidator<CosmicWordCheck, String?> {
+class CosmicWordValidator : ConstraintValidator<CosmicName, String?> {
 
-    private var allowEmpty: Boolean = false
     private lateinit var words: List<String>
 
-    override fun initialize(annotation: CosmicWordCheck) {
-        allowEmpty = annotation.allowEmpty
+    override fun initialize(annotation: CosmicName) {
         words = annotation.words
             .map { it.trim().lowercase() }
             .filter { it.isNotEmpty() }
@@ -18,7 +16,7 @@ class CosmicWordValidator : ConstraintValidator<CosmicWordCheck, String?> {
 
     override fun isValid(value: String?, context: ConstraintValidatorContext): Boolean {
         if (value.isNullOrBlank()) {
-            return allowEmpty
+            return false
         }
 
         val hay = value.lowercase()

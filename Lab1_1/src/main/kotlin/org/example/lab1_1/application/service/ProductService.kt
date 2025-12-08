@@ -2,7 +2,6 @@ package org.example.lab1_1.application.service
 
 import org.example.lab1_1.application.dto.*
 import org.example.lab1_1.domain.common.PageResult
-import org.example.lab1_1.domain.product.Product
 import java.util.*
 
 interface ProductService {
@@ -11,7 +10,7 @@ interface ProductService {
     fun list(
         q: String? = null,
         categoryId: UUID? = null,
-        status: Product.Status? = null,
+        status: ProductStatusDto? = null,
         minPrice: java.math.BigDecimal? = null,
         maxPrice: java.math.BigDecimal? = null,
         page: Int = 0,
