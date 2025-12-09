@@ -26,6 +26,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
     implementation("org.liquibase:liquibase-core")
     runtimeOnly("org.postgresql:postgresql")
@@ -38,6 +40,8 @@ dependencies {
         exclude(group = "org.hamcrest")
     }
     testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testImplementation("org.skyscreamer:jsonassert:1.5.1")
     testImplementation("com.jayway.jsonpath:json-path:2.9.0")
