@@ -7,6 +7,11 @@ spring:
     hibernate:
       ddl-auto: none
     open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:8080/oauth2/jwks
 
 springdoc:
   swagger-ui:
