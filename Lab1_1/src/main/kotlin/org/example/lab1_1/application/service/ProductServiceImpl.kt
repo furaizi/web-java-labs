@@ -1,5 +1,6 @@
 package org.example.lab1_1.application.service
 
+import org.example.lab1_1.application.exception.ConflictException
 import org.example.lab1_1.application.dto.ProductCreateDto
 import org.example.lab1_1.application.dto.ProductDetailsDto
 import org.example.lab1_1.application.dto.ProductPatchDto
@@ -95,6 +96,10 @@ class ProductServiceImpl(
 
     override fun delete(id: UUID) {
         val product = productRepository.findByPublicId(id) ?: throw NoSuchElementException("Product $id not found")
+        val productId = product.id ?: throw IllegalStateException("Product $id is missing a persisted identifier")
+        if (orderItemRepository.existsByProductId(productId)) {
+            throw ConflictException("Product $id cannot be deleted because it is referenced by existing orders")
+        }
         productRepository.delete(product)
     }
 

@@ -2,9 +2,11 @@ package org.example.lab1_1.application.service
 
 import io.kotest.matchers.shouldBe
 import io.mockk.every
+import io.mockk.justRun
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.example.lab1_1.application.exception.ConflictException
 import org.example.lab1_1.application.dto.ProductCreateDto
 import org.example.lab1_1.application.dto.ProductPatchDto
 import org.example.lab1_1.application.dto.ProductStatusDto
@@ -17,6 +19,7 @@ import org.example.lab1_1.domain.repository.OrderItemRepository
 import org.example.lab1_1.domain.repository.ProductRepository
 import org.example.lab1_1.domain.repository.projection.ProductSalesProjection
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import java.math.BigDecimal
@@ -167,6 +170,30 @@ class ProductServiceImplTest {
         val result = service.findTopSelling(5)
 
         result shouldBe listOf(projection)
+    }
+
+    @Test
+    fun `delete removes product when not referenced`() {
+        val product = sampleProduct()
+        every { productRepository.findByPublicId(product.publicId) } returns product
+        every { orderItemRepository.existsByProductId(product.id!!) } returns false
+        justRun { productRepository.delete(product) }
+
+        service.delete(product.publicId)
+
+        verify(exactly = 1) { productRepository.delete(product) }
+    }
+
+    @Test
+    fun `delete fails when product is referenced by order items`() {
+        val product = sampleProduct()
+        every { productRepository.findByPublicId(product.publicId) } returns product
+        every { orderItemRepository.existsByProductId(product.id!!) } returns true
+
+        val ex = assertThrows<ConflictException> { service.delete(product.publicId) }
+
+        ex.message shouldBe "Product ${product.publicId} cannot be deleted because it is referenced by existing orders"
+        verify(exactly = 0) { productRepository.delete(any<Product>()) }
     }
 
     private fun sampleProduct(category: Category = Category(publicId = UUID.randomUUID(), name = "Stars")): Product =
