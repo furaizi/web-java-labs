@@ -1,0 +1,70 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-enable-pgcrypto
+      author: codex
+      preConditions:
+        - dbms:
+            type: postgresql
+      changes:
+        - sql:
+            dbms: postgresql
+            sql: CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+  - changeSet:
+      id: 004-add-public-ids
+      author: codex
+      changes:
+        - addColumn:
+            tableName: categories
+            columns:
+              - column:
+                  name: public_id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    nullable: false
+                    unique: true
+        - addColumn:
+            tableName: products
+            columns:
+              - column:
+                  name: public_id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    nullable: false
+                    unique: true
+        - addColumn:
+            tableName: customers
+            columns:
+              - column:
+                  name: public_id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    nullable: false
+                    unique: true
+        - addColumn:
+            tableName: orders
+            columns:
+              - column:
+                  name: public_id
+                  type: uuid
+                  defaultValueComputed: gen_random_uuid()
+                  constraints:
+                    nullable: false
+                    unique: true
+
+  - changeSet:
+      id: 005-add-product-status
+      author: codex
+      changes:
+        - addColumn:
+            tableName: products
+            columns:
+              - column:
+                  name: status
+                  type: varchar(32)
+                  defaultValue: DRAFT
+                  constraints:
+                    nullable: false

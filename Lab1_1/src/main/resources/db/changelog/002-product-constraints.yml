@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-add-product-name-constraints
+      author: codex
+      changes:
+        - addUniqueConstraint:
+            tableName: products
+            columnNames: category_id, name
+            constraintName: uk_products_category_name
+        - createIndex:
+            tableName: products
+            indexName: idx_products_name
+            columns:
+              - column:
+                  name: name

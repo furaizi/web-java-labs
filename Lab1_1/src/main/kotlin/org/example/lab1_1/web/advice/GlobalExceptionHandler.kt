@@ -2,6 +2,7 @@ package org.example.lab1_1.web.advice
 
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.validation.ConstraintViolationException
+import org.example.lab1_1.application.exception.ConflictException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ProblemDetail
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -139,6 +140,17 @@ class GlobalErrorHandler {
             status = HttpStatus.UNSUPPORTED_MEDIA_TYPE,
             instance = req.requestURI,
             detail = ex.message
+        )
+
+    @ExceptionHandler(ConflictException::class)
+    fun onConflict(
+        ex: ConflictException,
+        req: HttpServletRequest
+    ): ProblemDetail =
+        problem(
+            status = HttpStatus.CONFLICT,
+            instance = req.requestURI,
+            detail = ex.message ?: "Conflict"
         )
 
     @ExceptionHandler(NoSuchElementException::class)
