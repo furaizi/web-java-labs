@@ -10,3 +10,5 @@ spring:
     hibernate:
       ddl-auto: none
     open-in-view: false
+  security:
+    api-key: cosmo-cats-secret

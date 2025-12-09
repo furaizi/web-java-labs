@@ -12,6 +12,7 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8080/oauth2/jwks
+  api-key: cosmo-cats-secret
 
 springdoc:
   swagger-ui:

@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
+import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
 
 @Configuration
@@ -22,7 +23,13 @@ class SecurityConfig {
     ): JwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+    fun apiKeyFilter(
+        @Value("\${security.api-key:cosmo-cats-secret}")
+        apiKey: String
+    ): ApiKeyFilter = ApiKeyFilter(validApiKey = apiKey)
+
+    @Bean
+    fun securityFilterChain(http: HttpSecurity, apiKeyFilter: ApiKeyFilter): SecurityFilterChain {
         http
             .csrf { it.disable() }
             .authorizeHttpRequests { auth ->
@@ -32,6 +39,7 @@ class SecurityConfig {
             }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .oauth2ResourceServer { it.jwt(Customizer.withDefaults()) }
+            .addFilterBefore(apiKeyFilter, BearerTokenAuthenticationFilter::class.java)
 
         return http.build()
     }
