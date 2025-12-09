@@ -40,6 +40,8 @@ dependencies {
         exclude(group = "org.hamcrest")
     }
     testImplementation("io.mockk:mockk:1.13.12")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("org.springframework.security:spring-security-test")
     testImplementation("io.kotest:kotest-assertions-core:5.9.1")
     testImplementation("org.skyscreamer:jsonassert:1.5.1")
     testImplementation("com.jayway.jsonpath:json-path:2.9.0")

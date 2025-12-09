@@ -18,7 +18,7 @@ class ApiKeyFilter(
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         // Only enforce API key on protected API routes
-        return !pathMatcher.match(protectedPattern, request.servletPath)
+        return !pathMatcher.match(protectedPattern, request.requestURI)
     }
 
     override fun doFilterInternal(
