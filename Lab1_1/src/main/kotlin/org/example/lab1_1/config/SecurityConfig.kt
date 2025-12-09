@@ -24,7 +24,7 @@ class SecurityConfig {
 
     @Bean
     fun apiKeyFilter(
-        @Value("\${security.api-key:cosmo-cats-secret}")
+        @Value("\${spring.security.api-key:cosmo-cats-secret}")
         apiKey: String
     ): ApiKeyFilter = ApiKeyFilter(validApiKey = apiKey)
 

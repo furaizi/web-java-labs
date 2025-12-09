@@ -23,7 +23,7 @@ import java.util.UUID
 
 @SpringBootTest(
     properties = [
-        "security.api-key=test-key"
+        "spring.security.api-key=test-key"
     ]
 )
 @AutoConfigureMockMvc
